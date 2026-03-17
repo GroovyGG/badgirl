@@ -1,0 +1,90 @@
+import SwiftUI
+
+struct ReflectionStepView: View {
+    @Bindable var formData: LogFormData
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("训练复盘").font(.headline)
+                    Text("全部可选，可以直接跳过保存")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+
+                ReflectionField(
+                    icon: "arrow.up.circle.fill",
+                    iconColor: .green,
+                    title: "进步了什么",
+                    placeholder: "今天比上次哪里做得更好？",
+                    text: $formData.whatImproved
+                )
+
+                ReflectionField(
+                    icon: "exclamationmark.triangle.fill",
+                    iconColor: .orange,
+                    title: "哪里出了问题",
+                    placeholder: "哪些动作或节奏感觉不对？",
+                    text: $formData.whatFeltWrong
+                )
+
+                ReflectionField(
+                    icon: "figure.walk",
+                    iconColor: .blue,
+                    title: "身体反馈",
+                    placeholder: "有没有哪里酸痛、不舒服？",
+                    text: $formData.bodyFeedback
+                )
+
+                ReflectionField(
+                    icon: "target",
+                    iconColor: .red,
+                    title: "明天的重点",
+                    placeholder: "下次训练想特别练什么？",
+                    text: $formData.tomorrowFocus
+                )
+
+                ReflectionField(
+                    icon: "note.text",
+                    iconColor: .purple,
+                    title: "自由备注",
+                    placeholder: "其他想记录的事情...",
+                    text: $formData.freeNote
+                )
+            }
+            .padding()
+        }
+    }
+}
+
+private struct ReflectionField: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: icon)
+                .font(.subheadline).fontWeight(.semibold)
+                .foregroundStyle(iconColor)
+
+            TextEditor(text: $text)
+                .frame(minHeight: 80)
+                .padding(8)
+                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    Group {
+                        if text.isEmpty {
+                            Text(placeholder)
+                                .foregroundStyle(.tertiary)
+                                .padding(12)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                .allowsHitTesting(false)
+                        }
+                    }
+                )
+        }
+    }
+}
