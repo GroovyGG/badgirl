@@ -30,6 +30,8 @@ final class PersistenceController {
             SessionReflection.self,
             DailyGoal.self,
             DailyGoalTarget.self,
+            PlannedSession.self,
+            PlannedSessionTarget.self,
         ])
 
         let configuration = ModelConfiguration(
