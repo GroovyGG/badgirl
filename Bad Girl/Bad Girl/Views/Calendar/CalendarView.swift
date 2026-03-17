@@ -150,14 +150,14 @@ private struct CalendarDayCell: View {
     private var isToday: Bool { date.isToday }
 
     private var dots: [(color: Color, id: String)] {
-        var result: [(Color, String)] = []
+        var result: [(color: Color, id: String)] = []
         for s in sessions.prefix(3) {
-            result.append((Color.forSessionType(s.sessionType), s.id.uuidString + "s"))
+            result.append((color: Color.forSessionType(s.sessionType), id: s.id.uuidString + "s"))
         }
         for p in planned.prefix(2) {
-            result.append((Color(.systemGray3), p.id.uuidString + "p"))
+            result.append((color: Color(.systemGray3), id: p.id.uuidString + "p"))
         }
-        return result.prefix(4).map { $0 }
+        return Array(result.prefix(4))
     }
 
     var body: some View {

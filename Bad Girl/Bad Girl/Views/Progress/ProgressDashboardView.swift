@@ -54,7 +54,7 @@ struct ProgressDashboardView: View {
         let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
         return allTargets
             .filter { $0.isActive }
-            .compactMap { target -> (MovementTarget, Double)? in
+            .compactMap { target -> (target: MovementTarget, avgQuality: Double)? in
                 let scores = filteredSessions
                     .filter { $0.sessionDate >= cutoff }
                     .flatMap { $0.sessionTargets }
@@ -62,7 +62,7 @@ struct ProgressDashboardView: View {
                     .compactMap { $0.qualityScore }
                 guard !scores.isEmpty else { return nil }
                 let avg = Double(scores.reduce(0, +)) / Double(scores.count)
-                return avg < 6 ? (target, avg) : nil
+                return avg < 6 ? (target: target, avgQuality: avg) : nil
             }
             .sorted { $0.avgQuality < $1.avgQuality }
     }

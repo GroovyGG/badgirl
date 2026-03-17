@@ -51,7 +51,7 @@ struct MovementTargetStepView: View {
                     ContentUnavailableView(
                         "暂无训练目标",
                         systemImage: "target",
-                        description: Text("请先在"更多"中添加训练目标")
+                        description: Text("请先在「更多」中添加训练目标")
                     )
                     .padding()
                 } else {
