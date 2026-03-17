@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct SessionDetailView: View {
     let session: TrainingSession
