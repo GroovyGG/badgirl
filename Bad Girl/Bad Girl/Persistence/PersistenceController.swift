@@ -34,13 +34,11 @@ final class PersistenceController {
             PlannedSessionTarget.self,
         ])
 
-        var configuration = ModelConfiguration(
+        let configuration = ModelConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: inMemory
+            isStoredInMemoryOnly: inMemory,
+            cloudKitDatabase: inMemory ? .none : .automatic
         )
-        if !inMemory {
-            configuration.cloudKitDatabase = .automatic
-        }
 
         do {
             container = try ModelContainer(for: schema, configurations: [configuration])
@@ -69,13 +67,9 @@ final class PersistenceController {
     }
 
     private func insertSeedData(into context: ModelContext) {
-        // Sports
-        let badminton    = Sport(code: "badminton",    name: "Badminton",    displayNameZh: "羽毛球", iconName: "figure.badminton",   colorToken: "blue",   sortOrder: 0)
-        let climbing     = Sport(code: "climbing",     name: "Climbing",     displayNameZh: "攀岩",   iconName: "figure.climbing",    colorToken: "orange", sortOrder: 1)
-        let tennis       = Sport(code: "tennis",       name: "Tennis",       displayNameZh: "网球",   iconName: "figure.tennis",      colorToken: "green",  sortOrder: 2)
-        let tableTennis  = Sport(code: "table_tennis", name: "Table Tennis", displayNameZh: "乒乓球", iconName: "figure.table.tennis.tenis", colorToken: "red", sortOrder: 3)
-
-        [badminton, climbing, tennis, tableTennis].forEach { context.insert($0) }
+        // Sports — app scope: general + badminton only (no other sports)
+        let badminton = Sport(code: "badminton", name: "Badminton", displayNameZh: "羽毛球", iconName: "figure.badminton", colorToken: "blue", sortOrder: 0)
+        context.insert(badminton)
 
         // Training domains
         let general    = TrainingDomain(code: "general_training",          name: "General Training",          displayNameZh: "基础训练",   sortOrder: 0)
