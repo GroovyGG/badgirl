@@ -15,8 +15,8 @@ struct LogSessionView: View {
     @State private var isSaving = false
     @State private var showSuccess = false
 
-    private let totalSteps = 6
-    private let stepTitles = ["类型", "时间", "目标", "指标", "评分", "复盘"]
+    private let totalSteps = 7
+    private let stepTitles = ["数据来源", "类型", "时间", "目标", "指标", "评分", "复盘"]
 
     var body: some View {
         NavigationStack {
@@ -30,12 +30,13 @@ struct LogSessionView: View {
 
                 // Step content
                 TabView(selection: $currentStep) {
-                    SessionTypeStepView(formData: formData).tag(0)
-                    DateTimeStepView(formData: formData).tag(1)
-                    MovementTargetStepView(formData: formData).tag(2)
-                    MetricsStepView(formData: formData).tag(3)
-                    BodyScoresStepView(formData: formData).tag(4)
-                    ReflectionStepView(formData: formData).tag(5)
+                    DataSourceStepView(formData: formData).tag(0)
+                    SessionTypeStepView(formData: formData).tag(1)
+                    DateTimeStepView(formData: formData).tag(2)
+                    MovementTargetStepView(formData: formData).tag(3)
+                    MetricsStepView(formData: formData).tag(4)
+                    BodyScoresStepView(formData: formData).tag(5)
+                    ReflectionStepView(formData: formData).tag(6)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.25), value: currentStep)
@@ -57,7 +58,7 @@ struct LogSessionView: View {
                             withAnimation { currentStep += 1 }
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(currentStep == 0 && formData.trainingDomain == nil)
+                        .disabled(currentStep == 1 && formData.trainingDomain == nil)
                         .frame(maxWidth: .infinity)
                     } else {
                         Button {
@@ -166,16 +167,22 @@ struct LogSessionView: View {
 
         try? context.save()
 
-        // Auto-import HealthKit snapshot
-        Task {
-            let snapshot = await healthKit.buildSnapshot(for: formData.sessionDate)
-            snapshot.trainingSession = session
-            context.insert(snapshot)
-            try? context.save()
-            await MainActor.run {
-                isSaving = false
-                showSuccess = true
+        if formData.dataSource == .appleWatch {
+            // Sync Apple Watch / HealthKit data for this session
+            Task {
+                let snapshot = await healthKit.buildSnapshot(for: formData.sessionDate)
+                snapshot.trainingSession = session
+                context.insert(snapshot)
+                try? context.save()
+                await MainActor.run {
+                    isSaving = false
+                    showSuccess = true
+                }
             }
+        } else {
+            // Fully manual: no HealthKit import
+            isSaving = false
+            showSuccess = true
         }
     }
 }

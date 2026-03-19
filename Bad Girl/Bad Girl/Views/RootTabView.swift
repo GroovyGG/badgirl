@@ -16,7 +16,7 @@ struct RootTabView: View {
                 }
                 .tag(Tab.home)
 
-            LogSessionView(isPresented: .constant(true), isEmbedded: true)
+            LogTabEntryView(showLogSheet: $showLogSheet)
                 .tabItem {
                     Label("记录", systemImage: "plus.circle.fill")
                 }
@@ -42,6 +42,44 @@ struct RootTabView: View {
         }
         .sheet(isPresented: $showLogSheet) {
             LogSessionView(isPresented: $showLogSheet, isEmbedded: false)
+        }
+    }
+}
+
+// MARK: - Log tab placeholder (opens form in sheet to avoid loading SwiftData in tab)
+
+private struct LogTabEntryView: View {
+    @Binding var showLogSheet: Bool
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(.blue)
+                Text("记录训练")
+                    .font(.title2).fontWeight(.semibold)
+                Text("点击下方按钮开始记录本次训练")
+                    .font(.subheadline).foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+
+                Button {
+                    showLogSheet = true
+                } label: {
+                    Label("开始记录", systemImage: "pencil")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 40)
+                .padding(.top, 8)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle("记录")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

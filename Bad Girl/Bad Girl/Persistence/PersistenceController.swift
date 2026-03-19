@@ -34,12 +34,13 @@ final class PersistenceController {
             PlannedSessionTarget.self,
         ])
 
-        let configuration = ModelConfiguration(
+        var configuration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: inMemory
-            // To enable CloudKit sync when Apple Developer account is active, add:
-            // cloudKitDatabase: .automatic
         )
+        if !inMemory {
+            configuration.cloudKitDatabase = .automatic
+        }
 
         do {
             container = try ModelContainer(for: schema, configurations: [configuration])

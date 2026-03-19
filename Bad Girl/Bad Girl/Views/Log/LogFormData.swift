@@ -1,10 +1,19 @@
 import Foundation
 import Observation
 
+/// How this session's activity data was captured.
+enum LogDataSource: String {
+    /// Apple Watch recorded activity; we will sync heart rate, calories, etc. User still inputs exercise details.
+    case appleWatch
+    /// No watch data (forgot to wear, etc.). Everything entered manually.
+    case manual
+}
+
 /// Shared mutable state for the multi-step log session form.
 /// Passed as a reference type so all step views see the same data.
 @Observable
 final class LogFormData {
+    var dataSource: LogDataSource = .appleWatch
     var sessionType: String = "training"
     var trainingDomain: TrainingDomain? = nil
     var sport: Sport? = nil
@@ -25,6 +34,7 @@ final class LogFormData {
     var freeNote: String = ""
 
     func reset() {
+        dataSource = .appleWatch
         sessionType = "training"
         trainingDomain = nil
         sport = nil
