@@ -26,6 +26,9 @@ final class Sport {
     @Relationship(deleteRule: .nullify, inverse: \DailyGoal.sport)
     var dailyGoals: [DailyGoal] = []
 
+    @Relationship(deleteRule: .nullify, inverse: \Exercise.sport)
+    var exercises: [Exercise] = []
+
     init(code: String, name: String, displayNameZh: String? = nil, iconName: String? = nil, colorToken: String? = nil, sortOrder: Int = 0) {
         self.code = code
         self.name = name

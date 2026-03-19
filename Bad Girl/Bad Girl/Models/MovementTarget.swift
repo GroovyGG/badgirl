@@ -33,6 +33,12 @@ final class MovementTarget {
     @Relationship(deleteRule: .nullify, inverse: \DailyGoalTarget.movementTarget)
     var dailyGoalTargets: [DailyGoalTarget] = []
 
+    @Relationship(deleteRule: .nullify, inverse: \Exercise.movementTarget)
+    var exercises: [Exercise] = []
+
+    @Relationship(deleteRule: .nullify, inverse: \ExerciseRecommendation.movementTarget)
+    var recommendations: [ExerciseRecommendation] = []
+
     init(code: String, name: String, trainingDomain: TrainingDomain, sport: Sport? = nil, category: String? = nil, bodySystem: String? = nil, displayNameZh: String? = nil, sortOrder: Int = 0) {
         self.code = code
         self.name = name

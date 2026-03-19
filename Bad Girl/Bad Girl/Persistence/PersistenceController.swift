@@ -32,6 +32,9 @@ final class PersistenceController {
             DailyGoalTarget.self,
             PlannedSession.self,
             PlannedSessionTarget.self,
+            Exercise.self,
+            ExerciseRecommendation.self,
+            ExerciseLog.self,
         ])
 
         if inMemory {
@@ -127,6 +130,76 @@ final class PersistenceController {
         let avgRally      = MetricDefinition(code: "badminton_avg_rally_count",      name: "Avg Rally Count",                trainingDomain: specific, sport: badminton, valueType: "decimal",          unit: "count", displayNameZh: "平均回合数")
 
         [lbeScore, ankleScore, fatigueScore, sixPointTime, unforcedErr, avgRally].forEach { context.insert($0) }
+
+        // Exercise catalog (seeded for recommendation/action layers)
+        let recoveryMobility = Exercise(
+            code: "recovery_mobility_flow",
+            name: "Recovery Mobility Flow",
+            recordType: "duration",
+            trainingDomain: recovery,
+            displayNameZh: "恢复拉伸流程",
+            sortOrder: 0
+        )
+        recoveryMobility.category = "mobility"
+        recoveryMobility.defaultIntensity = "low"
+        recoveryMobility.defaultDurationMinutes = 15
+        recoveryMobility.movementTarget = ankleStab
+
+        let sixPointFootwork = Exercise(
+            code: "badminton_6_point_footwork",
+            name: "6-point Footwork Drill",
+            recordType: "time_count",
+            trainingDomain: specific,
+            sport: badminton,
+            movementTarget: splitStep,
+            displayNameZh: "六点步法训练",
+            sortOrder: 1
+        )
+        sixPointFootwork.category = "footwork"
+        sixPointFootwork.defaultIntensity = "medium"
+        sixPointFootwork.defaultDurationMinutes = 12
+
+        let shoulderStabilityBlock = Exercise(
+            code: "shoulder_stability_block",
+            name: "Shoulder Stability Block",
+            recordType: "weight_reps",
+            trainingDomain: general,
+            movementTarget: shoulderStab,
+            displayNameZh: "肩部稳定训练组",
+            sortOrder: 2
+        )
+        shoulderStabilityBlock.category = "stability"
+        shoulderStabilityBlock.defaultIntensity = "medium"
+        shoulderStabilityBlock.defaultDurationMinutes = 18
+
+        let jumpExplosive = Exercise(
+            code: "jump_explosiveness_block",
+            name: "Jump Explosiveness Block",
+            recordType: "max_reps",
+            trainingDomain: general,
+            movementTarget: lowerBodyExp,
+            displayNameZh: "下肢爆发跳跃组",
+            sortOrder: 3
+        )
+        jumpExplosive.category = "explosiveness"
+        jumpExplosive.defaultIntensity = "high"
+        jumpExplosive.defaultDurationMinutes = 10
+
+        let enduranceIntervals = Exercise(
+            code: "badminton_endurance_intervals",
+            name: "Endurance Interval Session",
+            recordType: "duration",
+            trainingDomain: specific,
+            sport: badminton,
+            movementTarget: rearCourt,
+            displayNameZh: "羽毛球耐力间歇",
+            sortOrder: 4
+        )
+        enduranceIntervals.category = "endurance"
+        enduranceIntervals.defaultIntensity = "medium"
+        enduranceIntervals.defaultDurationMinutes = 20
+
+        [recoveryMobility, sixPointFootwork, shoulderStabilityBlock, jumpExplosive, enduranceIntervals].forEach { context.insert($0) }
 
         try? context.save()
     }

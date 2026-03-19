@@ -35,6 +35,12 @@ final class TrainingSession {
     @Relationship(deleteRule: .cascade, inverse: \SessionReflection.trainingSession)
     var reflection: SessionReflection? = nil
 
+    @Relationship(deleteRule: .nullify, inverse: \ExerciseRecommendation.sourceSession)
+    var exerciseRecommendations: [ExerciseRecommendation] = []
+
+    @Relationship(deleteRule: .nullify, inverse: \ExerciseLog.trainingSession)
+    var exerciseLogs: [ExerciseLog] = []
+
     init(sessionDate: Date, sessionType: String = "training", trainingDomain: TrainingDomain, sport: Sport? = nil) {
         self.sessionDate = sessionDate
         self.sessionType = sessionType

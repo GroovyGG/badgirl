@@ -24,6 +24,9 @@ final class TrainingDomain {
     @Relationship(deleteRule: .nullify, inverse: \DailyGoal.trainingDomain)
     var dailyGoals: [DailyGoal] = []
 
+    @Relationship(deleteRule: .nullify, inverse: \Exercise.trainingDomain)
+    var exercises: [Exercise] = []
+
     init(code: String, name: String, displayNameZh: String? = nil, description: String? = nil, sortOrder: Int = 0) {
         self.code = code
         self.name = name

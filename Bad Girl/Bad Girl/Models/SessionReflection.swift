@@ -15,6 +15,9 @@ final class SessionReflection {
 
     var trainingSession: TrainingSession? = nil
 
+    @Relationship(deleteRule: .nullify, inverse: \ExerciseRecommendation.sourceReflection)
+    var exerciseRecommendations: [ExerciseRecommendation] = []
+
     init(trainingSession: TrainingSession) {
         self.trainingSession = trainingSession
     }
