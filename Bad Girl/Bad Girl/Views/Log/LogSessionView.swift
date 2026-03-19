@@ -171,10 +171,10 @@ struct LogSessionView: View {
             // Sync Apple Watch / HealthKit data for this session
             Task {
                 let snapshot = await healthKit.buildSnapshot(for: formData.sessionDate)
-                snapshot.trainingSession = session
-                context.insert(snapshot)
-                try? context.save()
                 await MainActor.run {
+                    snapshot.trainingSession = session
+                    context.insert(snapshot)
+                    try? context.save()
                     isSaving = false
                     showSuccess = true
                 }
