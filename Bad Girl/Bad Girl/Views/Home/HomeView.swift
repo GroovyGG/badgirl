@@ -20,7 +20,7 @@ struct HomeView: View {
     private var suggestions: [MovementTargetSuggestion] {
         TrainingSuggestionEngine.generate(
             recentSessions: recentSessions,
-            allTargets: allTargets.filter { $0.isActive },
+            allTargets: allTargets.filter { $0.isActive && AppScope.isSupportedSport($0.sport) },
             latestHealth: latestHealth
         )
     }

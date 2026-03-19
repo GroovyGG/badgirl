@@ -56,7 +56,9 @@ struct SessionTypeStepView: View {
                     ForEach(domains) { domain in
                         Button {
                             formData.trainingDomain = domain
-                            if domain.code != "sport_specific_training" && domain.code != "match_play" {
+                            if domain.code == "sport_specific_training" || domain.code == "match_play" {
+                                formData.sport = sports.first { $0.code == AppScope.supportedSportCode }
+                            } else {
                                 formData.sport = nil
                             }
                         } label: {
@@ -85,42 +87,19 @@ struct SessionTypeStepView: View {
                     }
                 }
 
-                // Sport picker (only for sport-specific or match_play)
+                // Sport: app is badminton-only; when domain is sport-specific or match, show 羽毛球 (auto-set)
                 let needsSport = formData.trainingDomain?.code == "sport_specific_training"
                     || formData.trainingDomain?.code == "match_play"
 
                 if needsSport {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("运动项目").font(.headline)
-
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                            ForEach(sports.filter { $0.isActive }) { sport in
-                                Button {
-                                    formData.sport = sport
-                                } label: {
-                                    HStack {
-                                        Image(systemName: sport.iconName ?? "sportscourt")
-                                        Text(sport.displayNameZh ?? sport.name)
-                                            .font(.subheadline).fontWeight(.medium)
-                                        Spacer()
-                                        if formData.sport?.id == sport.id {
-                                            Image(systemName: "checkmark")
-                                                .font(.caption)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(
-                                        formData.sport?.id == sport.id
-                                            ? Color.forSport(sport.code).opacity(0.15)
-                                            : Color(.secondarySystemBackground),
-                                        in: RoundedRectangle(cornerRadius: 12)
-                                    )
-                                    .foregroundStyle(formData.sport?.id == sport.id ? Color.forSport(sport.code) : .primary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
+                    HStack(spacing: 8) {
+                        Text("运动项目").font(.subheadline).fontWeight(.semibold)
+                        Text("羽毛球").font(.subheadline).foregroundStyle(.secondary)
+                        Spacer()
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(.blue)
                     }
+                    .padding()
+                    .background(Color.blue.opacity(0.06), in: RoundedRectangle(cornerRadius: 12))
                 }
             }
             .padding()

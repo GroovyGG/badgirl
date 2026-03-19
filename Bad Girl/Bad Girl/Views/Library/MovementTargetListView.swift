@@ -10,6 +10,7 @@ struct MovementTargetListView: View {
 
     private var filtered: [MovementTarget] {
         allTargets.filter { t in
+            guard AppScope.isSupportedSport(t.sport) else { return false }
             let sportMatch = selectedSportFilter == nil
                 ? true
                 : (selectedSportFilter == "general" ? t.sport == nil : t.sport?.code == selectedSportFilter)
@@ -46,7 +47,7 @@ struct MovementTargetListView: View {
                 HStack(spacing: 8) {
                     FilterChip(label: "全部", isSelected: selectedSportFilter == nil) { selectedSportFilter = nil }
                     FilterChip(label: "基础", isSelected: selectedSportFilter == "general") { selectedSportFilter = "general" }
-                    ForEach(sports.filter { $0.isActive }) { sport in
+                    ForEach(sports.filter { $0.isActive && AppScope.isSupportedSport($0) }) { sport in
                         FilterChip(
                             label: sport.displayNameZh ?? sport.name,
                             isSelected: selectedSportFilter == sport.code,

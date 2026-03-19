@@ -32,7 +32,7 @@ struct PlanSessionView: View {
 
     private var filteredTargets: [MovementTarget] {
         allTargets.filter { t in
-            guard t.isActive else { return false }
+            guard t.isActive, AppScope.isSupportedSport(t.sport) else { return false }
             if let sport = selectedSport { return t.sport?.id == sport.id || t.sport == nil }
             return t.trainingDomain?.id == selectedDomain?.id || t.sport == nil
         }
@@ -62,13 +62,20 @@ struct PlanSessionView: View {
                             }
                         }
                         .contentShape(Rectangle())
-                        .onTapGesture { selectedDomain = domain }
+                        .onTapGesture {
+                            selectedDomain = domain
+                            if domain.code == "sport_specific_training" || sessionType == "game" {
+                                selectedSport = sports.first { $0.code == AppScope.supportedSportCode }
+                            } else {
+                                selectedSport = nil
+                            }
+                        }
                     }
                 }
 
                 if selectedDomain?.code == "sport_specific_training" || sessionType == "game" {
                     Section("运动项目") {
-                        ForEach(sports.filter { $0.isActive }) { sport in
+                        ForEach(sports.filter { $0.isActive && AppScope.isSupportedSport($0) }) { sport in
                             HStack {
                                 Label(sport.displayNameZh ?? sport.name, systemImage: sport.iconName ?? "sportscourt")
                                 Spacer()

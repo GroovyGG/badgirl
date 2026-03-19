@@ -6,8 +6,9 @@ struct MetricDefinitionListView: View {
     @State private var searchText = ""
 
     private var filtered: [MetricDefinition] {
-        guard !searchText.isEmpty else { return metrics }
-        return metrics.filter {
+        let supported = metrics.filter { AppScope.isSupportedSport($0.sport) }
+        guard !searchText.isEmpty else { return supported }
+        return supported.filter {
             ($0.displayNameZh ?? $0.name).localizedCaseInsensitiveContains(searchText)
             || $0.name.localizedCaseInsensitiveContains(searchText)
         }

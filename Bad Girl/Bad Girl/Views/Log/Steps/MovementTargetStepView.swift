@@ -7,7 +7,7 @@ struct MovementTargetStepView: View {
 
     private var filteredTargets: [MovementTarget] {
         allTargets.filter { t in
-            guard t.isActive else { return false }
+            guard t.isActive, AppScope.isSupportedSport(t.sport) else { return false }
             if let sport = formData.sport {
                 return t.sport?.id == sport.id || t.sport == nil
             }

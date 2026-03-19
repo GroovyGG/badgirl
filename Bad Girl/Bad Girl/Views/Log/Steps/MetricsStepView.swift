@@ -7,7 +7,7 @@ struct MetricsStepView: View {
 
     private var relevantMetrics: [MetricDefinition] {
         allDefinitions.filter { def in
-            guard def.isActive else { return false }
+            guard def.isActive, AppScope.isSupportedSport(def.sport) else { return false }
             let domainMatch = def.trainingDomain?.id == formData.trainingDomain?.id
             let sportMatch = formData.sport == nil ? def.sport == nil : def.sport?.id == formData.sport?.id
             return domainMatch && (def.sport == nil || sportMatch)
