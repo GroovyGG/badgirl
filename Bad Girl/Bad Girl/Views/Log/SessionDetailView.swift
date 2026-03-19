@@ -88,10 +88,12 @@ struct SessionDetailView: View {
                                 .font(.subheadline)
                             Spacer()
                             if let v = entry.valueNumber {
-                                Text(String(format: "%.1f", v))
-                                    .fontWeight(.semibold).monospacedDigit()
-                                + Text(" \(entry.metricDefinition?.unit ?? "")")
-                                    .font(.caption).foregroundStyle(.secondary)
+                                HStack(spacing: 2) {
+                                    Text(String(format: "%.1f", v))
+                                        .fontWeight(.semibold).monospacedDigit()
+                                    Text("\(entry.metricDefinition?.unit ?? "")")
+                                        .font(.caption).foregroundStyle(.secondary)
+                                }
                             } else if let t = entry.valueText {
                                 Text(t).foregroundStyle(.secondary)
                             }
