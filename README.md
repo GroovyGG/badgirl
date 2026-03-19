@@ -1,6 +1,6 @@
 # Bad Girl
 
-Personal iOS app for tracking badminton training and games — log sessions, record metrics and reflections, get rule-based “what to train next” suggestions, and view progress over time. Supports Apple Watch / Apple Health for heart rate and activity when worn, with optional iCloud sync across devices.
+Personal iOS app for tracking **general activity** and **badminton** only — log sessions, record metrics and reflections, get rule-based “what to train next” suggestions, and view progress over time. Other sports are not supported. Supports Apple Watch / Apple Health for heart rate and activity when worn, with optional iCloud sync across devices.
 
 **Built with Swift 6 · SwiftUI · SwiftData · HealthKit · CloudKit.**
 
@@ -87,6 +87,7 @@ Bad Girl/
 
 ## Data & Schema
 
+- **Scope:** App supports **general** (no sport) and **badminton** only; other sports are not shown or expanded.
 - **Sports & domains:** `Sport`, `TrainingDomain` — badminton (and others) and training context (e.g. general, sport-specific, match, recovery).
 - **Training content:** `MovementTarget`, `MovementTargetMuscle`, `MetricDefinition` — what to train and what to measure.
 - **Sessions:** `TrainingSession`, `SessionTarget`, `SessionMetricEntry`, `SessionReflection` — one log per session with targets, metrics, and reflection.

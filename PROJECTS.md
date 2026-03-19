@@ -2,6 +2,7 @@
 
 ## Bad Girl
 
+- **Scope:** General activity + badminton only (other sports not supported).
 - **Stack:** Swift, SwiftUI, SwiftData; HealthKit (read); CloudKit (optional sync).
 - **Purpose:** Log badminton training and games (sessions, targets, metrics, reflections).
 - **Features:** Rule-based "what to train next"; calendar (planned vs done); progress and weak areas.
