@@ -64,16 +64,12 @@ struct PlanSessionView: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             selectedDomain = domain
-                            if domain.code == "sport_specific_training" || sessionType == "game" {
-                                selectedSport = sports.first { $0.code == AppScope.supportedSportCode }
-                            } else {
-                                selectedSport = nil
-                            }
+                            selectedSport = sports.first { $0.code == AppScope.supportedSportCode }
                         }
                     }
                 }
 
-                if selectedDomain?.code == "sport_specific_training" || sessionType == "game" {
+                if selectedDomain != nil {
                     Section("运动项目") {
                         ForEach(sports.filter { $0.isActive && AppScope.isSupportedSport($0) }) { sport in
                             HStack {

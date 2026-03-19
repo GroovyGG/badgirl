@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Foundation
 
 struct MovementTargetListView: View {
     @Query(sort: \MovementTarget.sortOrder) private var allTargets: [MovementTarget]
@@ -23,7 +24,11 @@ struct MovementTargetListView: View {
 
     private var grouped: [(key: String, targets: [MovementTarget])] {
         let g = Dictionary(grouping: filtered) { $0.trainingDomain?.code ?? "other" }
-        let order = ["general_training", "sport_specific_training", "match_play", "recovery", "other"]
+        let orderedDomainCodes = allTargets
+            .compactMap { $0.trainingDomain }
+            .sorted { $0.sortOrder < $1.sortOrder }
+            .map(\.code)
+        let order = Array(NSOrderedSet(array: orderedDomainCodes).array as? [String] ?? []) + ["other"]
         return order.compactMap { key in
             guard let targets = g[key], !targets.isEmpty else { return nil }
             return (key: key, targets: targets)
@@ -31,13 +36,9 @@ struct MovementTargetListView: View {
     }
 
     private func domainLabel(_ code: String) -> String {
-        switch code {
-        case "general_training":        return "基础训练"
-        case "sport_specific_training": return "专项训练"
-        case "match_play":              return "比赛"
-        case "recovery":                return "恢复"
-        default:                        return "其他"
-        }
+        filtered.first(where: { $0.trainingDomain?.code == code })?.trainingDomain?.displayNameZh
+            ?? filtered.first(where: { $0.trainingDomain?.code == code })?.trainingDomain?.name
+            ?? "其他"
     }
 
     var body: some View {

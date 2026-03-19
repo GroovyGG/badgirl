@@ -56,11 +56,7 @@ struct SessionTypeStepView: View {
                     ForEach(domains) { domain in
                         Button {
                             formData.trainingDomain = domain
-                            if domain.code == "sport_specific_training" || domain.code == "match_play" {
-                                formData.sport = sports.first { $0.code == AppScope.supportedSportCode }
-                            } else {
-                                formData.sport = nil
-                            }
+                            formData.sport = sports.first { $0.code == AppScope.supportedSportCode }
                         } label: {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
@@ -87,9 +83,8 @@ struct SessionTypeStepView: View {
                     }
                 }
 
-                // Sport: app is badminton-only; when domain is sport-specific or match, show 羽毛球 (auto-set)
-                let needsSport = formData.trainingDomain?.code == "sport_specific_training"
-                    || formData.trainingDomain?.code == "match_play"
+                // Sport: app is badminton-only; once training domain is selected, sport is fixed as 羽毛球
+                let needsSport = formData.trainingDomain != nil
 
                 if needsSport {
                     HStack(spacing: 8) {
