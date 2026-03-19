@@ -24,6 +24,9 @@ struct RPESliderView: View {
 
             Slider(value: $value, in: 1...10, step: 1)
                 .tint(Color.forRPE(Int(value.rounded())))
+                .accessibilityLabel(label)
+                .accessibilityValue("\(Int(value.rounded()))，满分 10")
+                .accessibilityHint("左右滑动调整强度")
 
             HStack {
                 Text("轻松").font(.caption2).foregroundStyle(.secondary)

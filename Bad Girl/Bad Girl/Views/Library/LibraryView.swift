@@ -31,6 +31,8 @@ struct LibraryView: View {
                             Task { await healthKit.requestAuthorization() }
                         }
                         .foregroundStyle(.blue)
+                        .accessibilityLabel("请求 HealthKit 权限")
+                        .accessibilityHint("在系统弹窗中授权读取心率、活动与睡眠数据")
                     }
                     if let err = healthKit.authorizationError {
                         Text("错误：\(err.localizedDescription)")
