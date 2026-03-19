@@ -14,6 +14,12 @@ final class ExerciseRecommendation {
     var reason: String? = nil
     /// suggested | accepted | skipped | completed
     var status: String = "suggested"
+    var acceptedAt: Date? = nil
+    var skippedAt: Date? = nil
+    var completedAt: Date? = nil
+    /// unknown | improved | persisted
+    var outcomeSignal: String = "unknown"
+    var outcomeEvaluatedAt: Date? = nil
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
 

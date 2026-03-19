@@ -163,18 +163,24 @@ struct HomeView: View {
 
     private func acceptRecommendation(_ recommendation: ExerciseRecommendation) {
         recommendation.status = "accepted"
+        recommendation.acceptedAt = Date()
         recommendation.updatedAt = Date()
         try? context.save()
     }
 
     private func skipRecommendation(_ recommendation: ExerciseRecommendation) {
         recommendation.status = "skipped"
+        recommendation.skippedAt = Date()
         recommendation.updatedAt = Date()
         try? context.save()
     }
 
     private func completeRecommendation(_ recommendation: ExerciseRecommendation) {
         recommendation.status = "completed"
+        if recommendation.acceptedAt == nil {
+            recommendation.acceptedAt = Date()
+        }
+        recommendation.completedAt = Date()
         recommendation.updatedAt = Date()
 
         let log = ExerciseLog(
@@ -188,10 +194,12 @@ struct HomeView: View {
         log.userFeedback = "按推荐完成"
         context.insert(log)
         try? context.save()
+        ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
     }
 
     private func replaceRecommendation(_ recommendation: ExerciseRecommendation) {
         recommendation.status = "completed"
+        recommendation.completedAt = Date()
         recommendation.updatedAt = Date()
 
         let fallbackExercise = allExercises.first { $0.isActive }
@@ -206,6 +214,7 @@ struct HomeView: View {
         log.userFeedback = "用户替换为其他动作"
         context.insert(log)
         try? context.save()
+        ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
     }
 }
 

@@ -175,12 +175,14 @@ struct LogSessionView: View {
                     snapshot.trainingSession = session
                     context.insert(snapshot)
                     try? context.save()
+                    ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
                     isSaving = false
                     showSuccess = true
                 }
             }
         } else {
             // Fully manual: no HealthKit import
+            ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
             isSaving = false
             showSuccess = true
         }

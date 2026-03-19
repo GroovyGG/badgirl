@@ -132,4 +132,26 @@ final class Bad_GirlTests: XCTestCase {
         let result = (try? context.fetch(descriptor)) ?? []
         XCTAssertEqual(result.count, 1)
     }
+
+    func testAcceptedRateAndOutcomeSummary() {
+        let context = PersistenceController.preview.container.mainContext
+        let recommendationA = ExerciseRecommendation(status: "accepted")
+        let recommendationB = ExerciseRecommendation(status: "completed")
+        let recommendationC = ExerciseRecommendation(status: "suggested")
+        recommendationA.outcomeSignal = "improved"
+        recommendationB.outcomeSignal = "persisted"
+        recommendationC.outcomeSignal = "unknown"
+        context.insert(recommendationA)
+        context.insert(recommendationB)
+        context.insert(recommendationC)
+        try? context.save()
+
+        let acceptedRate = ExerciseRecommendationAnalytics.acceptedRate(context: context)
+        XCTAssertGreaterThan(acceptedRate, 0)
+
+        let summary = ExerciseRecommendationAnalytics.outcomeSignalSummary(context: context)
+        XCTAssertNotNil(summary["improved"])
+        XCTAssertNotNil(summary["persisted"])
+        XCTAssertNotNil(summary["unknown"])
+    }
 }
