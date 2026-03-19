@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		3D53F3392F69D296008FE495 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3D53F3102F69D294008FE495 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D53F3172F69D294008FE495;
+			remoteInfo = "Bad Girl";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		3D53F3182F69D294008FE495 /* Bad Girl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bad Girl.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D53F3322F69D296008FE495 /* Bad GirlTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Bad GirlTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = "Bad Girl";
 			sourceTree = "<group>";
 		};
+		3D53F3332F69D296008FE495 /* Bad GirlTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Bad GirlTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3D53F3152F69D294008FE495 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D53F3352F69D296008FE495 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -34,6 +57,7 @@
 			children = (
 				3D53F31A2F69D294008FE495 /* Bad Girl */,
 				3D53F3192F69D294008FE495 /* Products */,
+				3DF0DA072F6BA55A000EBDCA /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -41,8 +65,17 @@
 			isa = PBXGroup;
 			children = (
 				3D53F3182F69D294008FE495 /* Bad Girl.app */,
+				3D53F3322F69D296008FE495 /* Bad GirlTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3DF0DA072F6BA55A000EBDCA /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				3D53F3332F69D296008FE495 /* Bad GirlTests */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -70,6 +103,29 @@
 			productReference = 3D53F3182F69D294008FE495 /* Bad Girl.app */;
 			productType = "com.apple.product-type.application";
 		};
+		3D53F3312F69D296008FE495 /* Bad GirlTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3D53F3382F69D296008FE495 /* Build configuration list for PBXNativeTarget "Bad GirlTests" */;
+			buildPhases = (
+				3D53F3342F69D296008FE495 /* Sources */,
+				3D53F3352F69D296008FE495 /* Frameworks */,
+				3D53F3362F69D296008FE495 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3D53F3372F69D296008FE495 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3D53F3332F69D296008FE495 /* Bad GirlTests */,
+			);
+			name = "Bad GirlTests";
+			packageProductDependencies = (
+			);
+			productName = "Bad GirlTests";
+			productReference = 3D53F3322F69D296008FE495 /* Bad GirlTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -81,6 +137,9 @@
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					3D53F3172F69D294008FE495 = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					3D53F3312F69D296008FE495 = {
 						CreatedOnToolsVersion = 26.3;
 					};
 				};
@@ -100,12 +159,20 @@
 			projectRoot = "";
 			targets = (
 				3D53F3172F69D294008FE495 /* Bad Girl */,
+				3D53F3312F69D296008FE495 /* Bad GirlTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3D53F3162F69D294008FE495 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D53F3362F69D296008FE495 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +189,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3D53F3342F69D296008FE495 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3D53F3372F69D296008FE495 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D53F3172F69D294008FE495 /* Bad Girl */;
+			targetProxy = 3D53F3392F69D296008FE495 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3D53F3232F69D295008FE495 /* Debug */ = {
@@ -177,7 +259,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -234,7 +316,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -312,6 +394,44 @@
 			};
 			name = Release;
 		};
+		3D53F33A2F69D296008FE495 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 95BJE87QQD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.GroovyGG.Bad-Girl.Bad-GirlTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bad Girl.app/$(BUNDLE_EXECUTABLE_PATH)";
+			};
+			name = Debug;
+		};
+		3D53F33B2F69D296008FE495 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 95BJE87QQD;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.GroovyGG.Bad-Girl.Bad-GirlTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Bad Girl.app/$(BUNDLE_EXECUTABLE_PATH)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -329,6 +449,15 @@
 			buildConfigurations = (
 				3D53F3262F69D295008FE495 /* Debug */,
 				3D53F3272F69D295008FE495 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3D53F3382F69D296008FE495 /* Build configuration list for PBXNativeTarget "Bad GirlTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D53F33A2F69D296008FE495 /* Debug */,
+				3D53F33B2F69D296008FE495 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
