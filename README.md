@@ -1,4 +1,4 @@
-# Bad Girl
+# Bad Girl 🏸
 
 Personal iOS app for tracking **general activity** and **badminton** only — log sessions, record metrics and reflections, get rule-based “what to train next” suggestions, and view progress over time. Other sports are not supported. Supports Apple Watch / Apple Health for heart rate and activity when worn, with optional iCloud sync across devices.
 
