@@ -27,8 +27,16 @@ struct CalendarView: View {
                 // Month navigation
                 MonthNavigationHeader(
                     month: displayedMonth,
-                    onPrev: { displayedMonth = Calendar.current.date(byAdding: .month, value: -1, to: displayedMonth)!.startOfMonth },
-                    onNext: { displayedMonth = Calendar.current.date(byAdding: .month, value: 1, to: displayedMonth)!.startOfMonth }
+                    onPrev: {
+                        if let prev = Calendar.current.date(byAdding: .month, value: -1, to: displayedMonth) {
+                            displayedMonth = prev.startOfMonth
+                        }
+                    },
+                    onNext: {
+                        if let next = Calendar.current.date(byAdding: .month, value: 1, to: displayedMonth) {
+                            displayedMonth = next.startOfMonth
+                        }
+                    }
                 )
 
                 // Weekday header

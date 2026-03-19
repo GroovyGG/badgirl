@@ -17,8 +17,10 @@ struct MetricChartCardView: View {
 
     private var latestValue: Double? { dataPoints.last?.value }
     private var trend: Double? {
-        guard dataPoints.count >= 2 else { return nil }
-        return dataPoints.last!.value - dataPoints[dataPoints.count - 2].value
+        guard dataPoints.count >= 2,
+              let last = dataPoints.last,
+              let secondLast = dataPoints.dropLast().last else { return nil }
+        return last.value - secondLast.value
     }
     private var trendColor: Color {
         guard let t = trend else { return .secondary }
@@ -79,5 +81,9 @@ struct MetricChartCardView: View {
         }
         .padding()
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(metricNameZh) 趋势")
+        .accessibilityValue(dataPoints.isEmpty ? "暂无数据" : "最新 \(String(format: "%.1f", latestValue ?? 0)) \(unit)，共 \(dataPoints.count) 个数据点")
+        .accessibilityHint("展示近期 \(metricNameZh) 变化")
     }
 }

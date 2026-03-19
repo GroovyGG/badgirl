@@ -23,7 +23,9 @@ struct DateTimeStepView: View {
                         VStack(alignment: .leading) {
                             Text("开始").font(.caption).foregroundStyle(.secondary)
                             DatePicker("", selection: Binding(
-                                get: { formData.startTime ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: formData.sessionDate)! },
+                                get: {
+                                    formData.startTime ?? Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: formData.sessionDate) ?? formData.sessionDate
+                                },
                                 set: { formData.startTime = $0 }
                             ), displayedComponents: .hourAndMinute)
                             .labelsHidden()
@@ -39,7 +41,9 @@ struct DateTimeStepView: View {
                         VStack(alignment: .leading) {
                             Text("结束").font(.caption).foregroundStyle(.secondary)
                             DatePicker("", selection: Binding(
-                                get: { formData.endTime ?? Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: formData.sessionDate)! },
+                                get: {
+                                    formData.endTime ?? Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: formData.sessionDate) ?? formData.sessionDate
+                                },
                                 set: { formData.endTime = $0 }
                             ), displayedComponents: .hourAndMinute)
                             .labelsHidden()

@@ -42,7 +42,7 @@ struct ProgressDashboardView: View {
 
     private var activeMetrics: [MetricDefinition] {
         allMetrics.filter { def in
-            guard def.isActive else { return false }
+            guard def.isActive, AppScope.isSupportedSport(def.sport) else { return false }
             if let code = selectedSportCode {
                 return def.sport?.code == code || def.sport == nil
             }
@@ -51,9 +51,9 @@ struct ProgressDashboardView: View {
     }
 
     private var weakTargets: [(target: MovementTarget, avgQuality: Double)] {
-        let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
+        guard let cutoff = Calendar.current.date(byAdding: .day, value: -30, to: Date()) else { return [] }
         return allTargets
-            .filter { $0.isActive }
+            .filter { $0.isActive && AppScope.isSupportedSport($0.sport) }
             .compactMap { target -> (target: MovementTarget, avgQuality: Double)? in
                 let scores = filteredSessions
                     .filter { $0.sessionDate >= cutoff }
@@ -84,8 +84,8 @@ struct ProgressDashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // Sport filter
-                    SportFilterPills(sports: sports, selectedCode: $selectedSportCode)
+                    // Sport filter — app scope: 全部 + 羽毛球 only
+                    SportFilterPills(sports: sports.filter { AppScope.isSupportedSport($0) }, selectedCode: $selectedSportCode)
                         .padding(.horizontal)
 
                     // Date range filter
