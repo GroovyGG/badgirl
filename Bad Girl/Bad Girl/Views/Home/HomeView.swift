@@ -3,12 +3,17 @@ import SwiftData
 
 struct HomeView: View {
     @Binding var showLogSheet: Bool
+    @State private var showIntervalTimer = false
+    @State private var hasGeneratedRecommendations = false
 
+    @Environment(\.modelContext) private var context
     @Environment(HealthKitManager.self) private var healthKit
     @Query(sort: \TrainingSession.sessionDate, order: .reverse) private var allSessions: [TrainingSession]
     @Query(sort: \MovementTarget.sortOrder) private var allTargets: [MovementTarget]
     @Query(sort: \HealthSnapshot.snapshotDate, order: .reverse) private var healthSnapshots: [HealthSnapshot]
     @Query(sort: \DailyGoal.goalDate, order: .reverse) private var allGoals: [DailyGoal]
+    @Query(sort: \ExerciseRecommendation.recommendedDate, order: .reverse) private var allRecommendations: [ExerciseRecommendation]
+    @Query(sort: \Exercise.sortOrder) private var allExercises: [Exercise]
 
     private var recentSessions: [TrainingSession] { Array(allSessions.prefix(5)) }
     private var latestHealth: HealthSnapshot? { healthSnapshots.first }
@@ -31,6 +36,10 @@ struct HomeView: View {
         return formatter.string(from: Date())
     }
 
+    private var pendingRecommendations: [ExerciseRecommendation] {
+        allRecommendations.filter { $0.status == "suggested" || $0.status == "accepted" }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -44,11 +53,51 @@ struct HomeView: View {
                     SuggestionCard(suggestions: suggestions)
                         .padding(.horizontal)
 
+                    if !pendingRecommendations.isEmpty {
+                        ExerciseRecommendationCard(
+                            recommendations: Array(pendingRecommendations.prefix(3)),
+                            onAccept: acceptRecommendation,
+                            onSkip: skipRecommendation,
+                            onComplete: completeRecommendation,
+                            onReplace: replaceRecommendation
+                        )
+                        .padding(.horizontal)
+                    }
+
                     // Today's goals
                     if !todayGoals.isEmpty {
                         TodayGoalsSection(goals: todayGoals)
                             .padding(.horizontal)
                     }
+
+                    // Interval timer card
+                    Button {
+                        showIntervalTimer = true
+                    } label: {
+                        HStack(spacing: 14) {
+                            Image(systemName: "timer")
+                                .font(.title2)
+                                .foregroundStyle(.orange)
+                                .frame(width: 44, height: 44)
+                                .background(Color.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("训练计时器")
+                                    .font(.headline)
+                                    .foregroundStyle(.primary)
+                                Text("间歇训练 · 工作/休息倒计时")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal)
 
                     // Quick log button
                     Button {
@@ -94,7 +143,69 @@ struct HomeView: View {
             }
             .navigationTitle("Bad Girl 🏸")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showIntervalTimer) {
+                IntervalTimerView()
+            }
+            .task(id: allSessions.count) {
+                guard !hasGeneratedRecommendations else { return }
+                ExerciseRecommendationEngine.generateAndPersist(
+                    context: context,
+                    recentSessions: recentSessions,
+                    allTargets: allTargets.filter { $0.isActive && AppScope.isSupportedSport($0.sport) },
+                    latestHealth: latestHealth
+                )
+                hasGeneratedRecommendations = true
+            }
         }
+    }
+
+    // MARK: - Recommendation actions
+
+    private func acceptRecommendation(_ recommendation: ExerciseRecommendation) {
+        recommendation.status = "accepted"
+        recommendation.updatedAt = Date()
+        try? context.save()
+    }
+
+    private func skipRecommendation(_ recommendation: ExerciseRecommendation) {
+        recommendation.status = "skipped"
+        recommendation.updatedAt = Date()
+        try? context.save()
+    }
+
+    private func completeRecommendation(_ recommendation: ExerciseRecommendation) {
+        recommendation.status = "completed"
+        recommendation.updatedAt = Date()
+
+        let log = ExerciseLog(
+            completedDate: Date(),
+            recommendation: recommendation,
+            trainingSession: recommendation.sourceSession,
+            exercise: recommendation.exercise
+        )
+        log.intensity = recommendation.intensity
+        log.durationMinutes = recommendation.durationMinutes
+        log.userFeedback = "按推荐完成"
+        context.insert(log)
+        try? context.save()
+    }
+
+    private func replaceRecommendation(_ recommendation: ExerciseRecommendation) {
+        recommendation.status = "completed"
+        recommendation.updatedAt = Date()
+
+        let fallbackExercise = allExercises.first { $0.isActive }
+        let log = ExerciseLog(
+            completedDate: Date(),
+            recommendation: nil,
+            trainingSession: recommendation.sourceSession,
+            exercise: fallbackExercise
+        )
+        log.intensity = recommendation.intensity
+        log.durationMinutes = recommendation.durationMinutes
+        log.userFeedback = "用户替换为其他动作"
+        context.insert(log)
+        try? context.save()
     }
 }
 
@@ -148,6 +259,58 @@ private struct SuggestionCard: View {
         .sheet(isPresented: $showDetail) {
             SuggestionDetailView(suggestions: suggestions)
         }
+    }
+}
+
+private struct ExerciseRecommendationCard: View {
+    let recommendations: [ExerciseRecommendation]
+    let onAccept: (ExerciseRecommendation) -> Void
+    let onSkip: (ExerciseRecommendation) -> Void
+    let onComplete: (ExerciseRecommendation) -> Void
+    let onReplace: (ExerciseRecommendation) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("主动补充练习建议", systemImage: "sparkles")
+                    .font(.headline)
+                    .foregroundStyle(.purple)
+                Spacer()
+            }
+
+            ForEach(recommendations) { recommendation in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(recommendation.exercise?.displayNameZh ?? recommendation.exercise?.name ?? recommendation.targetProblem ?? "补充训练建议")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    if let reason = recommendation.reason, !reason.isEmpty {
+                        Text(reason)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack(spacing: 8) {
+                        if recommendation.status == "suggested" {
+                            Button("采纳") { onAccept(recommendation) }
+                                .buttonStyle(.borderedProminent)
+                                .controlSize(.small)
+                        }
+                        Button("跳过") { onSkip(recommendation) }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        Button("完成") { onComplete(recommendation) }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                        Button("替换") { onReplace(recommendation) }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                    }
+                }
+                .padding(10)
+                .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
