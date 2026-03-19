@@ -34,16 +34,38 @@ final class PersistenceController {
             PlannedSessionTarget.self,
         ])
 
-        let configuration = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: inMemory,
-            cloudKitDatabase: inMemory ? .none : .automatic
-        )
-
-        do {
-            container = try ModelContainer(for: schema, configurations: [configuration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+        if inMemory {
+            let configuration = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: true,
+                cloudKitDatabase: .none
+            )
+            do {
+                container = try ModelContainer(for: schema, configurations: [configuration])
+            } catch {
+                fatalError("Could not create in-memory ModelContainer: \(error)")
+            }
+        } else {
+            // Try CloudKit-backed store first; fall back to local-only if existing store is incompatible (e.g. created without CloudKit).
+            let configWithCloudKit = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .automatic
+            )
+            if let c = try? ModelContainer(for: schema, configurations: [configWithCloudKit]) {
+                container = c
+            } else {
+                let configLocalOnly = ModelConfiguration(
+                    schema: schema,
+                    isStoredInMemoryOnly: false,
+                    cloudKitDatabase: .none
+                )
+                do {
+                    container = try ModelContainer(for: schema, configurations: [configLocalOnly])
+                } catch {
+                    fatalError("Could not create ModelContainer: \(error)")
+                }
+            }
         }
 
         if inMemory {
