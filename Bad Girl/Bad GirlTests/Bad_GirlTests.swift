@@ -53,4 +53,83 @@ final class Bad_GirlTests: XCTestCase {
             XCTAssertGreaterThanOrEqual(suggestions[i - 1].score, suggestions[i].score)
         }
     }
+
+    // MARK: - Four-layer model integrity
+
+    func testExerciseModelsInsertAndFetch() {
+        let context = PersistenceController.preview.container.mainContext
+        let domain = (try? context.fetch(FetchDescriptor<TrainingDomain>()).first)
+        let session = (try? context.fetch(FetchDescriptor<TrainingSession>()).first)
+        XCTAssertNotNil(domain)
+        XCTAssertNotNil(session)
+
+        let exercise = Exercise(
+            code: "test_exercise",
+            name: "Test Exercise",
+            recordType: "duration",
+            trainingDomain: domain,
+            displayNameZh: "测试动作"
+        )
+        context.insert(exercise)
+
+        let recommendation = ExerciseRecommendation(
+            recommendedDate: Date(),
+            status: "suggested",
+            sourceSession: session,
+            exercise: exercise
+        )
+        recommendation.targetProblem = "测试问题"
+        context.insert(recommendation)
+
+        let log = ExerciseLog(
+            completedDate: Date(),
+            recommendation: recommendation,
+            trainingSession: session,
+            exercise: exercise
+        )
+        log.durationMinutes = 10
+        context.insert(log)
+        try? context.save()
+
+        let exerciseCount = (try? context.fetchCount(FetchDescriptor<Exercise>())) ?? 0
+        let recommendationCount = (try? context.fetchCount(FetchDescriptor<ExerciseRecommendation>())) ?? 0
+        let logCount = (try? context.fetchCount(FetchDescriptor<ExerciseLog>())) ?? 0
+
+        XCTAssertGreaterThan(exerciseCount, 0)
+        XCTAssertGreaterThan(recommendationCount, 0)
+        XCTAssertGreaterThan(logCount, 0)
+    }
+
+    func testRecommendationCompletionCreatesLogLinkage() {
+        let context = PersistenceController.preview.container.mainContext
+        guard let session = (try? context.fetch(FetchDescriptor<TrainingSession>()).first),
+              let exercise = (try? context.fetch(FetchDescriptor<Exercise>()).first) else {
+            XCTFail("Missing seed session or exercise")
+            return
+        }
+
+        let recommendation = ExerciseRecommendation(
+            recommendedDate: Date(),
+            status: "suggested",
+            sourceSession: session,
+            exercise: exercise
+        )
+        recommendation.status = "completed"
+        context.insert(recommendation)
+
+        let log = ExerciseLog(
+            completedDate: Date(),
+            recommendation: recommendation,
+            trainingSession: session,
+            exercise: exercise
+        )
+        log.userFeedback = "test completion"
+        context.insert(log)
+        try? context.save()
+
+        var descriptor = FetchDescriptor<ExerciseLog>(predicate: #Predicate { $0.recommendation?.id == recommendation.id })
+        descriptor.fetchLimit = 1
+        let result = (try? context.fetch(descriptor)) ?? []
+        XCTAssertEqual(result.count, 1)
+    }
 }
