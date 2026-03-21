@@ -5,8 +5,26 @@ struct SessionDetailView: View {
     let session: TrainingSession
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \TrainingDomain.sortOrder) private var domainCatalog: [TrainingDomain]
 
     private var accentColor: Color { Color.forSport(session.sport?.code) }
+
+    private var sessionDomains: [TrainingDomain] {
+        session.trainingDomainsOrdered(resolvingFrom: domainCatalog)
+    }
+
+    private var perDomainFeelingsDecoded: [PerDomainFeelingsPayload] {
+        guard !session.perDomainFeelingsJSON.isEmpty,
+              let data = session.perDomainFeelingsJSON.data(using: .utf8),
+              let arr = try? JSONDecoder().decode([PerDomainFeelingsPayload].self, from: data) else { return [] }
+        return arr
+    }
+
+    private func domainLabel(forCode code: String) -> String {
+        domainCatalog.first { $0.code == code }?.displayNameZh
+            ?? domainCatalog.first { $0.code == code }?.name
+            ?? code
+    }
 
     var body: some View {
         List {
@@ -24,11 +42,8 @@ struct SessionDetailView: View {
                             .font(.title3).fontWeight(.bold)
                         Text(session.sessionDate.shortDateString)
                             .font(.subheadline).foregroundStyle(.secondary)
-                        if let domain = session.trainingDomain {
-                            Text(domain.displayNameZh ?? domain.name)
-                                .font(.caption)
-                                .padding(.horizontal, 6).padding(.vertical, 2)
-                                .background(Color(.tertiarySystemBackground), in: Capsule())
+                        if !sessionDomains.isEmpty {
+                            FlowDomainChips(domains: sessionDomains)
                         }
                     }
                 }
@@ -37,14 +52,27 @@ struct SessionDetailView: View {
 
             // Scores
             Section("训练评分") {
-                if let rpe = session.intensityRPE {
-                    ScoreRow(label: "RPE 强度", value: rpe, outOf: 10)
-                }
-                if let energy = session.energyLevel {
-                    ScoreRow(label: "体能状态", value: energy, outOf: 10)
-                }
-                if let completion = session.completionScore {
-                    ScoreRow(label: "完成度", value: completion, outOf: 10)
+                if perDomainFeelingsDecoded.isEmpty {
+                    if let rpe = session.intensityRPE {
+                        ScoreRow(label: "RPE 强度（平均）", value: rpe, outOf: 10)
+                    }
+                    if let energy = session.energyLevel {
+                        ScoreRow(label: "体能状态（平均）", value: energy, outOf: 10)
+                    }
+                    if let completion = session.completionScore {
+                        ScoreRow(label: "完成度（平均）", value: completion, outOf: 10)
+                    }
+                } else {
+                    ForEach(perDomainFeelingsDecoded, id: \.code) { row in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(domainLabel(forCode: row.code))
+                                .font(.subheadline).fontWeight(.semibold)
+                            ScoreRow(label: "RPE 强度", value: row.intensityRPE, outOf: 10)
+                            ScoreRow(label: "体能状态", value: row.energyLevel, outOf: 10)
+                            ScoreRow(label: "完成度", value: row.completionScore, outOf: 10)
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
                 if let duration = session.durationMinutes {
                     HStack {
@@ -169,6 +197,23 @@ private struct DataRow: View {
             Text(label)
             Spacer()
             Text(value).foregroundStyle(.secondary).monospacedDigit()
+        }
+    }
+}
+
+private struct FlowDomainChips: View {
+    let domains: [TrainingDomain]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(domains) { d in
+                    Text(d.displayNameZh ?? d.name)
+                        .font(.caption)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Color(.tertiarySystemBackground), in: Capsule())
+                }
+            }
         }
     }
 }

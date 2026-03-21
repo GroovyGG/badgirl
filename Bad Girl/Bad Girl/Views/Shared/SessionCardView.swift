@@ -35,8 +35,15 @@ struct SessionCardView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(session.sport?.displayNameZh ?? session.trainingDomain?.displayNameZh ?? "训练")
-                        .font(.subheadline).fontWeight(.semibold)
+                    HStack(spacing: 4) {
+                        Text(session.sport?.displayNameZh ?? session.trainingDomain?.displayNameZh ?? "训练")
+                            .font(.subheadline).fontWeight(.semibold)
+                        if session.trainingDomainSelectionCount > 1 {
+                            Text("+\(session.trainingDomainSelectionCount - 1)")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
 
                     Text(typeLabel)
                         .font(.caption)

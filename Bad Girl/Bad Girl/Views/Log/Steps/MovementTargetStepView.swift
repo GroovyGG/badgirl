@@ -11,7 +11,8 @@ struct MovementTargetStepView: View {
             if let sport = formData.sport {
                 return t.sport?.id == sport.id || t.sport == nil
             }
-            return t.trainingDomain?.id == formData.trainingDomain?.id || t.sport == nil
+            if formData.selectedTrainingDomains.isEmpty { return false }
+            return formData.selectedTrainingDomains.contains(where: { $0.id == t.trainingDomain?.id }) || t.sport == nil
         }
     }
 

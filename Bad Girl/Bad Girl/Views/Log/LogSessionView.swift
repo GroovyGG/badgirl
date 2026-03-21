@@ -8,15 +8,14 @@ struct LogSessionView: View {
     let isEmbedded: Bool
 
     @Environment(\.modelContext) private var context
-    @Environment(HealthKitManager.self) private var healthKit
 
     @State private var formData = LogFormData()
     @State private var currentStep = 0
     @State private var isSaving = false
     @State private var showSuccess = false
 
-    private let totalSteps = 7
-    private let stepTitles = ["数据来源", "类型", "时间", "目标", "指标", "评分", "复盘"]
+    private let totalSteps = 4
+    private let stepTitles = ["时间", "类型", "感受", "反馈"]
 
     var body: some View {
         NavigationStack {
@@ -30,13 +29,10 @@ struct LogSessionView: View {
 
                 // Step content
                 TabView(selection: $currentStep) {
-                    DataSourceStepView(formData: formData).tag(0)
+                    DateTimeStepView(formData: formData).tag(0)
                     SessionTypeStepView(formData: formData).tag(1)
-                    DateTimeStepView(formData: formData).tag(2)
-                    MovementTargetStepView(formData: formData).tag(3)
-                    MetricsStepView(formData: formData).tag(4)
-                    BodyScoresStepView(formData: formData).tag(5)
-                    ReflectionStepView(formData: formData).tag(6)
+                    BodyScoresStepView(formData: formData).tag(2)
+                    ReflectionStepView(formData: formData).tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.25), value: currentStep)
@@ -58,7 +54,7 @@ struct LogSessionView: View {
                             withAnimation { currentStep += 1 }
                         }
                         .buttonStyle(.borderedProminent)
-                        .disabled(currentStep == 1 && formData.trainingDomain == nil)
+                        .disabled(currentStep == 1 && formData.selectedTrainingDomains.isEmpty)
                         .frame(maxWidth: .infinity)
                     } else {
                         Button {
@@ -102,18 +98,37 @@ struct LogSessionView: View {
     }
 
     private func saveSession() {
-        guard let domain = formData.trainingDomain else { return }
+        guard let primaryDomain = formData.selectedTrainingDomains.first else { return }
         isSaving = true
 
         let session = TrainingSession(
             sessionDate: formData.sessionDate,
             sessionType: formData.sessionType,
-            trainingDomain: domain,
+            trainingDomain: primaryDomain,
             sport: formData.sport
         )
-        session.intensityRPE = Int(formData.intensityRPE.rounded())
-        session.energyLevel = Int(formData.energyLevel.rounded())
-        session.completionScore = Int(formData.completionScore.rounded())
+        let orderedDomains = formData.selectedTrainingDomains.sorted { $0.sortOrder < $1.sortOrder }
+        session.trainingDomainCodesOrdered = orderedDomains.map(\.code).joined(separator: ",")
+
+        formData.syncFeelingsWithSelection()
+        let payloads: [PerDomainFeelingsPayload] = orderedDomains.map { domain in
+            let f = formData.feelingsByDomainId[domain.id] ?? DomainFeelings()
+            return PerDomainFeelingsPayload(
+                code: domain.code,
+                intensityRPE: Int(f.intensityRPE.rounded()),
+                energyLevel: Int(f.energyLevel.rounded()),
+                completionScore: Int(f.completionScore.rounded())
+            )
+        }
+        if let data = try? JSONEncoder().encode(payloads), let json = String(data: data, encoding: .utf8) {
+            session.perDomainFeelingsJSON = json
+        }
+        let rpes = payloads.map(\.intensityRPE)
+        let energies = payloads.map(\.energyLevel)
+        let completions = payloads.map(\.completionScore)
+        session.intensityRPE = rpes.isEmpty ? nil : rpes.reduce(0, +) / rpes.count
+        session.energyLevel = energies.isEmpty ? nil : energies.reduce(0, +) / energies.count
+        session.completionScore = completions.isEmpty ? nil : completions.reduce(0, +) / completions.count
         if let start = formData.startTime, let end = formData.endTime {
             session.startTime = start
             session.endTime = end
@@ -123,69 +138,36 @@ struct LogSessionView: View {
         }
         context.insert(session)
 
-        // Session targets
-        for target in formData.selectedTargets {
-            let st = SessionTarget(trainingSession: session, movementTarget: target)
-            context.insert(st)
-        }
-
-        // Metric entries
-        for (defID, value) in formData.metricValues {
-            // We need to find the MetricDefinition by id — we use a fetch
-            let descriptor = FetchDescriptor<MetricDefinition>(
-                predicate: #Predicate { $0.id == defID }
-            )
-            if let def = try? context.fetch(descriptor).first {
-                let entry = SessionMetricEntry(trainingSession: session, metricDefinition: def)
-                entry.valueNumber = value
-                context.insert(entry)
-            }
-        }
-        for (defID, text) in formData.metricTextValues where !text.isEmpty {
-            let descriptor = FetchDescriptor<MetricDefinition>(
-                predicate: #Predicate { $0.id == defID }
-            )
-            if let def = try? context.fetch(descriptor).first {
-                let entry = SessionMetricEntry(trainingSession: session, metricDefinition: def)
-                entry.valueText = text
-                context.insert(entry)
-            }
-        }
-
         // Reflection
         let hasReflection = !formData.whatImproved.isEmpty || !formData.whatFeltWrong.isEmpty
-            || !formData.bodyFeedback.isEmpty || !formData.tomorrowFocus.isEmpty || !formData.freeNote.isEmpty
+            || !formData.bodyFeedback.isEmpty || !formData.coachFeedback.isEmpty
+            || !formData.tomorrowFocus.isEmpty || !formData.freeNote.isEmpty
         if hasReflection {
             let reflection = SessionReflection(trainingSession: session)
             reflection.whatImproved = formData.whatImproved.isEmpty ? nil : formData.whatImproved
             reflection.whatFeltWrong = formData.whatFeltWrong.isEmpty ? nil : formData.whatFeltWrong
             reflection.bodyFeedback = formData.bodyFeedback.isEmpty ? nil : formData.bodyFeedback
+            reflection.coachFeedback = formData.coachFeedback.isEmpty ? nil : formData.coachFeedback
             reflection.tomorrowFocus = formData.tomorrowFocus.isEmpty ? nil : formData.tomorrowFocus
             reflection.freeNote = formData.freeNote.isEmpty ? nil : formData.freeNote
             context.insert(reflection)
         }
 
         try? context.save()
-
-        if formData.dataSource == .appleWatch {
-            // Sync Apple Watch / HealthKit data for this session
-            Task {
-                let snapshot = await healthKit.buildSnapshot(for: formData.sessionDate)
-                await MainActor.run {
-                    snapshot.trainingSession = session
-                    context.insert(snapshot)
-                    try? context.save()
-                    ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
-                    isSaving = false
-                    showSuccess = true
-                }
-            }
-        } else {
-            // Fully manual: no HealthKit import
-            ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
-            isSaving = false
-            showSuccess = true
+        let recentSessions = (try? context.fetch(FetchDescriptor<TrainingSession>())) ?? []
+        let allTargets = (try? context.fetch(FetchDescriptor<MovementTarget>())) ?? []
+        let latestHealth = (try? context.fetch(FetchDescriptor<HealthSnapshot>())).flatMap { snapshots in
+            snapshots.sorted { $0.snapshotDate > $1.snapshotDate }.first
         }
+        ExerciseRecommendationEngine.generateAndPersist(
+            context: context,
+            recentSessions: recentSessions,
+            allTargets: allTargets,
+            latestHealth: latestHealth
+        )
+        ExerciseRecommendationAnalytics.evaluateOutcomeSignals(context: context)
+        isSaving = false
+        showSuccess = true
     }
 }
 

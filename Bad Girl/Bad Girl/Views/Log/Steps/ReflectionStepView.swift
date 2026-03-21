@@ -7,8 +7,8 @@ struct ReflectionStepView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("训练复盘").font(.headline)
-                    Text("全部可选，可以直接跳过保存")
+                    Text("整体反馈").font(.headline)
+                    Text("整次训练的复盘与备注；与上面「按训练域」的评分分开")
                         .font(.caption).foregroundStyle(.secondary)
                 }
 
@@ -34,6 +34,14 @@ struct ReflectionStepView: View {
                     title: "身体反馈",
                     placeholder: "有没有哪里酸痛、不舒服？",
                     text: $formData.bodyFeedback
+                )
+
+                ReflectionField(
+                    icon: "person.2.fill",
+                    iconColor: .teal,
+                    title: "教练反馈",
+                    placeholder: "教练今天给了哪些建议或纠正？",
+                    text: $formData.coachFeedback
                 )
 
                 ReflectionField(
