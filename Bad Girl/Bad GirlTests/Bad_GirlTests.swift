@@ -154,4 +154,10 @@ final class Bad_GirlTests: XCTestCase {
         XCTAssertNotNil(summary["persisted"])
         XCTAssertNotNil(summary["unknown"])
     }
+
+    func testPreviewSeedsTwelveTrainingDomains() {
+        let context = PersistenceController.preview.container.mainContext
+        let domains = (try? context.fetch(FetchDescriptor<TrainingDomain>())) ?? []
+        XCTAssertEqual(domains.count, 12, "Preview seed should have 12 training domains")
+    }
 }
