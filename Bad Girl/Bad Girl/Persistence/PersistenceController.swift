@@ -75,6 +75,8 @@ final class PersistenceController {
             seedPreviewData()
         } else {
             seedProductionDataIfNeeded()
+            // Replace legacy 4-domain rows (or any non-canonical codes) with the 12 badminton domains.
+            TrainingDomainMigration.runIfNeeded(context: container.mainContext)
         }
     }
 

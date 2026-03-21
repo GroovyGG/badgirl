@@ -8,6 +8,7 @@ final class SessionReflection {
     var whatImproved: String? = nil
     var whatFeltWrong: String? = nil
     var bodyFeedback: String? = nil
+    var coachFeedback: String? = nil
     var tomorrowFocus: String? = nil
     var freeNote: String? = nil
     var createdAt: Date = Date()
