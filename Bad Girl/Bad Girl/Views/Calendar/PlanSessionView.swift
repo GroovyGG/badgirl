@@ -55,7 +55,12 @@ struct PlanSessionView: View {
                 Section("训练域") {
                     ForEach(domains) { domain in
                         HStack {
-                            Text(domain.displayNameZh ?? domain.name)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(domain.displayNameZh ?? domain.name)
+                                Text(domain.name)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                             Spacer()
                             if selectedDomain?.id == domain.id {
                                 Image(systemName: "checkmark").foregroundStyle(.blue)
