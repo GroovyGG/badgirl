@@ -3,6 +3,7 @@ import SwiftUI
 struct RootTabView: View {
     @State private var selectedTab: Tab = .home
     @State private var showLogSheet = false
+    @State private var showExerciseLogSheet = false
 
     enum Tab: Int {
         case home, log, calendar, progress, library
@@ -18,7 +19,7 @@ struct RootTabView: View {
                 .accessibilityLabel("今日")
                 .accessibilityHint("今日训练与建议")
 
-            LogTabEntryView(showLogSheet: $showLogSheet)
+            LogTabEntryView(showLogSheet: $showLogSheet, showExerciseLogSheet: $showExerciseLogSheet)
                 .tabItem {
                     Label("记录", systemImage: "plus.circle.fill")
                 }
@@ -53,6 +54,9 @@ struct RootTabView: View {
         .sheet(isPresented: $showLogSheet) {
             LogSessionView(isPresented: $showLogSheet, isEmbedded: false)
         }
+        .sheet(isPresented: $showExerciseLogSheet) {
+            ExerciseLogEntryView(isPresented: $showExerciseLogSheet)
+        }
     }
 }
 
@@ -60,16 +64,17 @@ struct RootTabView: View {
 
 private struct LogTabEntryView: View {
     @Binding var showLogSheet: Bool
+    @Binding var showExerciseLogSheet: Bool
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 60))
                     .foregroundStyle(.blue)
-                Text("记录训练")
+                Text("记录")
                     .font(.title2).fontWeight(.semibold)
-                Text("点击下方按钮开始记录本次训练")
+                Text("Session 与 Exercise 分开记录，更清晰")
                     .font(.subheadline).foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
@@ -77,7 +82,7 @@ private struct LogTabEntryView: View {
                 Button {
                     showLogSheet = true
                 } label: {
-                    Label("开始记录", systemImage: "pencil")
+                    Label("记录 Session（事件/感受/反馈）", systemImage: "square.and.pencil")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -85,7 +90,18 @@ private struct LogTabEntryView: View {
                         .foregroundStyle(.white)
                 }
                 .padding(.horizontal, 40)
-                .padding(.top, 8)
+
+                Button {
+                    showExerciseLogSheet = true
+                } label: {
+                    Label("记录 Exercise 执行", systemImage: "figure.strengthtraining.traditional")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 40)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle("记录")

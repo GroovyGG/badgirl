@@ -1,7 +1,10 @@
 import SwiftUI
+import SwiftData
 
 struct LibraryView: View {
     @Environment(HealthKitManager.self) private var healthKit
+    @Query(sort: \TrainingDomain.sortOrder) private var trainingDomains: [TrainingDomain]
+    @State private var showDomainDebugSheet = false
 
     var body: some View {
         NavigationStack {
@@ -54,8 +57,43 @@ struct LibraryView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+
+#if DEBUG
+                Section("调试") {
+                    Button("查看当前 TrainingDomain（数据库实际值）") {
+                        showDomainDebugSheet = true
+                    }
+                }
+#endif
             }
             .navigationTitle("更多")
+            .sheet(isPresented: $showDomainDebugSheet) {
+                NavigationStack {
+                    List(trainingDomains) { domain in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(domain.displayNameZh ?? domain.name)
+                                .font(.headline)
+                            Text("code: \(domain.code)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("name: \(domain.name)")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text("sortOrder: \(domain.sortOrder)")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                    .navigationTitle("TrainingDomain")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("关闭") { showDomainDebugSheet = false }
+                        }
+                    }
+                }
+            }
         }
     }
 }
